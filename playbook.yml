@@ -1,0 +1,14 @@
+- name: Configurar adaptador red Cliente
+  blockinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-enp0s3
+    backup: yes
+    block: |
+      TYPE=Ethernet
+      PROXY_METHOD=none
+      BROWSER_ONLY=no
+      BOOTPROTO=static
+      DEFROUTE=yes
+      NAME=enp0s3
+      ONBOOT=yes
+      IPADDR=192.168.2.1
+      NETMASK=255.255.255.0
