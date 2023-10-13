@@ -1,0 +1,59 @@
+- name: Instalar Docker, Docker Compose, PHP y Apache
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Instalar paquetes necesarios para agregar repositorio de Docker
+      package:
+        name: ['yum-utils', 'device-mapper-persistent-data', 'lvm2']
+      when: ansible_system == "Linux" and ansible_distribution == "CentOS"
+
+    - name: Agregar el repositorio de Docker CE
+      shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      when: ansible_system == "Linux" and ansible_distribution == "CentOS"
+    
+    - name: Instalar Docker CE
+      package:
+        name: docker-ce
+        state: present
+      when: ansible_system == "Linux" and ansible_distribution == "CentOS"
+
+    - name: Habilitar y arrancar el servicio Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+      when: ansible_system == "Linux" and ansible_distribution == "CentOS"
+
+    - name: Instalar Docker Compose
+      command: >
+        curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      args:
+        creates: /usr/local/bin/docker-compose
+      when: ansible_system == "Linux"
+
+    - name: Dar permisos de ejecución a Docker Compose
+      file:
+        path: /usr/local/bin/docker-compose
+        mode: '0755'
+      when: ansible_system == "Linux"
+
+    - name: Agregar docker-compose al PATH
+      lineinfile:
+        dest: "~/.bashrc"  # Cambia esto según el archivo de perfil que utilices (por ejemplo, ~/.bash_profile)
+        line: 'export PATH=$PATH:/usr/local/bin'
+        insertafter: EOF
+      when: ansible_system == "Linux"
+
+    - name: Instalar PHP y Apache
+      package:
+        name: ['php', 'httpd']
+        state: present
+      when: ansible_system == "Linux"
+
+    - name: Habilitar y arrancar el servicio Apache
+      systemd:
+        name: httpd
+        enabled: yes
+        state: started
+      when: ansible_system == "Linux"
