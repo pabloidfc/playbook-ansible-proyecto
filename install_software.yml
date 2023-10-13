@@ -25,22 +25,20 @@
         state: started
       when: ansible_system == "Linux" and ansible_distribution == "CentOS"
 
-    - name: Instalar Docker Compose
+    - name: Descargar Docker Compose
       command: >
-        curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
       args:
         creates: /usr/local/bin/docker-compose
       when: ansible_system == "Linux"
 
-    - name: Dar permisos de ejecución a Docker Compose
-      file:
-        path: /usr/local/bin/docker-compose
-        mode: '0755'
+    - name: Asignar permisos de ejecución
+      command: chmod +x /usr/local/bin/docker-compose
       when: ansible_system == "Linux"
 
     - name: Agregar docker-compose al PATH
       lineinfile:
-        dest: "~/.bashrc"  # Cambia esto según el archivo de perfil que utilices (por ejemplo, ~/.bash_profile)
+        dest: "~/.bashrc"
         line: 'export PATH=$PATH:/usr/local/bin'
         insertafter: EOF
       when: ansible_system == "Linux"
